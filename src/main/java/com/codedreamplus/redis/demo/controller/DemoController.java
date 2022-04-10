@@ -1,11 +1,11 @@
-package com.codedream.redis.demo.controller;
+package com.codedreamplus.redis.demo.controller;
 
-import com.codedream.redis.CodeDreamRedis;
-import com.codedream.redis.demo.service.DemoService;
-import com.codedream.redis.lock.LockType;
-import com.codedream.redis.lock.RedisLock;
-import com.codedream.redis.lock.RedisLockClient;
-import com.codedream.redis.ratelimiter.RateLimiter;
+import com.codedreamplus.redis.CodeDreamPlusRedis;
+import com.codedreamplus.redis.demo.service.DemoService;
+import com.codedreamplus.redis.lock.LockType;
+import com.codedreamplus.redis.lock.RedisLock;
+import com.codedreamplus.redis.lock.RedisLockClient;
+import com.codedreamplus.redis.ratelimiter.RateLimiter;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 演示控制器
+ *
+ * @author cool
+ * @date 2022/04/10
+ */
 @RestController
 @AllArgsConstructor
 public class DemoController {
 
-    private final CodeDreamRedis codeDreamRedis;
+    private final CodeDreamPlusRedis codeDreamPlusRedis;
     private final RedisLockClient redisLockClient;
     private final DemoService demoService;
 
@@ -27,13 +33,13 @@ public class DemoController {
     //限流，每分钟只能获取五次
     @RateLimiter(value = "test", max = 5, ttl = 1, timeUnit = TimeUnit.MINUTES)
     public String get() {
-        return codeDreamRedis.get("test");
+        return codeDreamPlusRedis.get("test");
     }
 
 
     @PostMapping
     public Boolean save(@RequestParam String value) {
-        codeDreamRedis.set("test", value);
+        codeDreamPlusRedis.set("test", value);
         return Boolean.TRUE;
     }
 
@@ -47,7 +53,7 @@ public class DemoController {
 
     @RedisLock(lockName = "testLock", waitTime = 10, leaseTime = 60, type = LockType.REENTRANT)
     public String getReentrantLockMethod() {
-        return codeDreamRedis.get("test");
+        return codeDreamPlusRedis.get("test");
     }
 
     /**
@@ -69,6 +75,6 @@ public class DemoController {
     @GetMapping("/cacheable")
     @Cacheable(cacheNames = "testCacheable#60")
     public String cacheable() {
-        return codeDreamRedis.get("test");
+        return codeDreamPlusRedis.get("test");
     }
 }
